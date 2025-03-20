@@ -3,54 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Not Found</title>
+    <title>Sound Selection</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background: linear-gradient(135deg, #1a1a1a, #2b2b2b);
+            background: #212121;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
+            color: #fff;
             overflow: hidden;
             cursor: default;
         }
 
         .container {
             text-align: center;
-            color: #fff;
-            padding: 40px;
-            background: rgba(0, 0, 0, 0.9);
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            animation: fadeIn 1s ease-in-out;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            background: #303030;
+            border: 1px solid #424242;
+            border-radius: 5px;
         }
 
         h2 {
-            font-size: 5em;
-            color: #ff4444;
+            font-size: 2.5em;
+            color: #d32f2f;
             margin: 0;
-            text-shadow: 3px 3px 10px rgba(255, 68, 68, 0.7);
-            letter-spacing: 2px;
+            font-weight: bold;
         }
 
         p {
-            font-size: 1.8em;
-            color: #ddd;
-            margin: 15px 0;
+            font-size: 1.2em;
+            color: #b0b0b0;
+            margin: 10px 0;
         }
 
-        span {
-            font-size: 1.4em;
-            color: #ff6666;
-            font-weight: bold;
-            transition: color 0.3s;
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
 
-        span:hover {
-            color: #ff9999;
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: #fff;
+            background: #424242;
+            border: 1px solid #616161;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #616161;
+        }
+
+        button:active {
+            background: #d32f2f;
         }
 
         .overlay {
@@ -59,41 +75,42 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
+            background: #212121;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            color: #fff;
+            padding: 20px;
         }
 
         .hidden {
             display: none;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Эффект мигания для оверлея */
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.7; }
-            100% { opacity: 1; }
-        }
-
-        .overlay.active {
-            animation: blink 1s infinite;
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 2em;
+            }
+            p {
+                font-size: 1em;
+            }
+            button {
+                padding: 8px 15px;
+                font-size: 0.9em;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>404 - Ошибка</h2>
-        <p>Ссылка не найдена</p>
-        <span>Проверьте правильность ввода</span>
+        <h2>Выберите звук</h2>
+        <p>Нажмите на кнопку ниже</p>
+        <div class="buttons">
+            <button onclick="startPrank('sounds/moan.mp3')">Стоны</button>
+            <button onclick="startPrank('sounds/cry.mp3')">Плач</button>
+            <button onclick="startPrank('sounds/judge.mp3')">Осуждение</button>
+        </div>
     </div>
     <div id="prank-overlay" class="overlay hidden">
         <h2>404 - Ошибка</h2>
@@ -108,30 +125,32 @@
             const overlay = document.getElementById('prank-overlay');
             const container = document.querySelector('.container');
 
-            // Определяем версию сайта по URL
-            const path = window.location.pathname;
-            if (path === '/s') {
-                audio.src = 'sounds/moan.mp3'; // Стоны
-            } else if (path === '/t') {
-                audio.src = 'sounds/cry.mp3'; // Плач
-            } else if (path === '/g') {
-                audio.src = 'sounds/judge.mp3'; // Осуждающий звук
-            } else {
-                audio.src = 'sounds/moan.mp3'; // По умолчанию
-            }
-
-            // Список реальных заголовков сайтов для маскировки
+            // Список заголовков для маскировки
             const fakeTitles = [
-                'Google - Search the world\'s information',
-                'YouTube - Enjoy the videos and music',
-                'Wikipedia - The Free Encyclopedia',
-                'Reddit - The front page of the internet',
-                'X - What’s happening?',
-                'Instagram - Share your moments',
-                'Facebook - Log in or sign up',
-                'TikTok - Make Your Day',
-                'Amazon - Earth\'s biggest selection',
-                'Netflix - Unlimited movies and TV shows'
+                'Google - Search',
+                'YouTube - Videos',
+                'Wikipedia - Info',
+                'Reddit - News',
+                'X - Updates',
+                'Instagram - Photos',
+                'Facebook - Login',
+                'TikTok - Trends',
+                'Amazon - Shop',
+                'Netflix - Shows'
+            ];
+
+            // Список сайтов для переадресации
+            const randomSites = [
+                'https://www.google.com',
+                'https://www.youtube.com',
+                'https://www.reddit.com',
+                'https://www.wikipedia.org',
+                'https://www.twitter.com',
+                'https://www.instagram.com',
+                'https://www.facebook.com',
+                'https://www.tiktok.com',
+                'https://www.amazon.com',
+                'https://www.netflix.com'
             ];
 
             // Функция смены заголовка
@@ -140,61 +159,47 @@
                 document.title = randomTitle;
             }
 
-            // Пранк активируется при клике где угодно на странице
-            let prankTriggered = false;
-            document.body.addEventListener('click', () => {
-                if (prankTriggered) return; // Запускаем только один раз
-                prankTriggered = true;
+            // Функция переадресации
+            let siteIndex = 0;
+            function redirectLoop() {
+                setTimeout(() => {
+                    window.location.href = randomSites[siteIndex];
+                    siteIndex = (siteIndex + 1) % randomSites.length; // Цикл по списку
+                }, 2000); // Переадресация каждые 2 секунды
+            }
 
-                // Включаем звук на максимум
+            // Функция запуска пранка
+            window.startPrank = function(soundFile) {
+                audio.src = soundFile;
                 audio.volume = 1.0;
                 audio.loop = true;
                 audio.play();
 
-                // Показываем оверлей с эффектом мигания
+                // Показываем оверлей без кнопок
                 overlay.classList.remove('hidden');
-                overlay.classList.add('active');
                 container.style.display = 'none';
 
                 // Меняем заголовок каждые 1.5 секунды
                 setInterval(changeTitle, 1500);
 
-                // Удерживаем активность
+                // Запускаем переадресацию
+                redirectLoop();
+
+                // Удерживаем звук активным
                 setInterval(() => {
-                    window.focus();
-                    audio.play(); // Принудительно возобновляем звук
+                    audio.play();
                 }, 1000);
 
-                // Открываем 10 случайных сайтов
-                const randomSites = [
-                    'https://www.google.com',
-                    'https://www.youtube.com',
-                    'https://www.reddit.com',
-                    'https://www.wikipedia.org',
-                    'https://www.twitter.com',
-                    'https://www.instagram.com',
-                    'https://www.facebook.com',
-                    'https://www.tiktok.com',
-                    'https://www.amazon.com',
-                    'https://www.netflix.com'
-                ];
-
-                randomSites.forEach((site, index) => {
-                    setTimeout(() => {
-                        window.open(site, '_blank');
-                    }, index * 300); // Ускоряем открытие вкладок
+                // Блокируем закрытие (ограниченно работает)
+                window.addEventListener('beforeunload', (e) => {
+                    e.preventDefault();
+                    e.returnValue = 'Вы уверены?';
                 });
-            });
+            };
 
-            // Предотвращаем остановку звука при потере фокуса
+            // Возобновляем звук при потере фокуса
             window.addEventListener('blur', () => {
                 audio.play();
-            });
-
-            // Блокируем закрытие вкладки (ограниченно работает в современных браузерах)
-            window.addEventListener('beforeunload', (e) => {
-                e.preventDefault();
-                e.returnValue = 'Вы уверены, что хотите уйти?';
             });
         });
     </script>
